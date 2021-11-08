@@ -2,7 +2,7 @@
 
 > Mysql主流版本号为5.6，安装版本号为8.0.24，命令上有不小差异，具体差异参见官网，以官网为准。
 >
-> + MySQL语句关键字和库名及数据表名 在 Windows 下不区分大小写，但在 **Linux 下区分大小写**。因此，数据库名、 表名、字段名，都不允许出现任何大写字母，避免节外生枝。
+> + MySQL的库名及数据表名在 Windows 下不区分大小写，但在 **Linux 下区分大小写**。因此，数据库名、 表名都不允许出现任何大写字母，避免节外生枝。
 > + 使用函数时，函数名与其后的括号之间**不能有空格**。
 > + MySQL 中语句的结束不是行的结束，而是 **“;”** 。
 >
@@ -97,31 +97,28 @@ Update mysql.user set password=Password('password') where user='account'	# Updat
 | Function | Description                      |
 |   ----   | ----                                  |
 | ADD      | 指定默认状态下要操作的数据表     |
-| CHANGE   |                                  |
-| MODIFY   |                                  |
-| DROP    |                                  |
-| UPDATE | |
-| RANAME   |                                  |
-| INSERT   |                                  |
+| DROP    | 删除表记录 |
+| UPDATE | 更新表记录 |
+| RANAME   | 重命名 |
+| INSERT   | 新增表记录 |
 
 ## 5. 辅助操作符
 
-| FUNCTION      | DESCRIBE                     |
-| ------------- | ---------------------------- |
-| WHERE         | 过滤数据后分组               |
-| Having        | 分组后过滤数据               |
-| IN            | 包含                         |
-| AS            | 别名                         |
-| FROM          | 来源                         |
-| JOIN          | 连接                         |
-| UNION         | 合并                         |
-| LIKE          | 模式匹配                     |
-| REGEXP        | 正则匹配                     |
-| BEWTEEN AND   | 范围比较                     |
-| GROUND BY     | 分类                         |
-| ORDER BY      | 排序                         |
-| HAVEING       | 分组后过滤数据               |
-| LIMIT         | [限制数据偏移量与]最大记录数 |
+| FUNCTION    | DESCRIBE                     |
+| ----------- | ---------------------------- |
+| WHERE       | 过滤数据后分组               |
+| HAVING      | 分组后过滤数据               |
+| IN          | 包含                         |
+| AS          | 别名                         |
+| FROM        | 来源                         |
+| JOIN        | 连接                         |
+| UNION       | 合并                         |
+| LIKE        | 模式匹配                     |
+| REGEXP      | 正则匹配                     |
+| BEWTEEN AND | 范围比较                     |
+| GROUP BY    | 分组                         |
+| ORDER BY    | 排序                         |
+| LIMIT       | [限制数据偏移量与]最大记录数 |
 
 ## 6. 功能函数
 
@@ -331,8 +328,6 @@ Create Function name ([params])
 	body
 ```
 
-
-
 ## 3. 触发器
 
 触发器是MySQL提供给程序员和数据分析员来保证数据完整性的一种方法，他是与表事件相关联的特殊的存储过程，它的执行由表操作出发，用于加强数据的完整性约束和业务规则等。
@@ -460,15 +455,11 @@ Delimiter;
 >
 > **表锁**：事务A操作数据时，封锁整个表，事务B要等A完成才能操作，并发度较低。
 
-
-
 在读写方面数据库锁也分为读锁（共享锁）和写锁（排他锁）。
 
 > **读锁**：若事务A加了此锁，A可以对数据进行读取操作，但不能更新；其它事务也可以读，但不能修改；
 >
 > **写锁**：若事务A加了此锁，A可以对数据进行读和写操作，其它事务不能读写，否则会阻塞。
-
- 
 
 上面所说的是悲观锁，MySQL中InnoDB也提供了乐观锁的实现——MVCC（多版本并发控制）。用通俗的方式解释悲观锁和乐观锁大概是这样：
 
@@ -1760,6 +1751,7 @@ Select Table.Columns As Alias
 From Table
 Where Condition
 Group by
+HAVING Condition
 Order by
 ...;
 ```
@@ -1787,8 +1779,12 @@ Table_reference [Inner | Cross] Join table_factor [join condition]
 如果要指定连接的表中的列名相同，则可以通过`Using` 或者`Natural Join`
 
 ```sql
-Select name From table Join name2 Using(columns);
-Select name From table Natural Join name2;
+Select name 
+From table Join name2 
+Using(columns);
+
+Select name 
+From table Natural Join name2;
 ```
 
 ## 3. 模式匹配
@@ -1797,13 +1793,20 @@ MySQL提供标准的SQL模式匹配(Like)，也支持基于 Unix的正则表达�
 
 ### 3.1 Like
 
-LIKE匹配可以使用特殊字符 ‘`_`’ 和 “`%`”进行模糊查询，其中前者代表RYE一个字符，后者代表任意多个字符。通常情况下，LIKE拥有更高的匹配效率。
+> LIKE匹配可以使用特殊字符 ‘`_`’ 和 “`%`”进行模糊查询，其中前者代表RYE一个字符，后者代表任意多个字符。通常情况下，LIKE拥有更高的匹配效率。
+>
 
 同时，若匹配内容中出现了特殊字符，则可通过EXCAPE定义转义符，如下：
 
 ```SQL
 '$_%' ESCAPE '$'
 ```
+
+| SIGNAL | DESCRIPTION    |
+| ------ | -------------- |
+| * / %  | 任意个数个字符 |
+| _ / ?  | 单个字符       |
+| #      | 单个数字       |
 
 
 
@@ -1813,8 +1816,8 @@ LIKE匹配可以使用特殊字符 ‘`_`’ 和 “`%`”进行模糊查询，�
 
 | PATTERN | DESCRIPTION                |
 | ------- | -------------------------- |
-| ^       | 开头匹配                   |
-| $       | 结尾匹配                   |
+| ^       | 开头匹配（放在最前面）     |
+| $       | 结尾匹配（放在最后面）     |
 | .       | 任意字符                   |
 | []      | 包括，某一字符的可能性集合 |
 | [^]     | 不包括，某一字符的排除集合 |
